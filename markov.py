@@ -100,19 +100,26 @@ def get_tweets(search_criteria):
                 access_token_secret=os.environ["TWITTER_ACCESS_TOKEN_SECRET"],
                 tweet_mode="extended")
 
-    search = api.GetUserTimeline(screen_name=search_criteria, count=10)
+    search = api.GetUserTimeline(screen_name=search_criteria, count=100)
+    print(search)
     tweets = [item.AsDict() for item in search]
     tweets = [re.sub(r'http\S+', '', tweet["full_text"]) for tweet in tweets]
 
-    for tweet in tweets:
-        print(tweet)
     return tweets
+
+
+def save_tweets_to_text_file(tweets):
+    with open("tweets.txt", "a") as file:
+        for tweet in tweets:
+            file.write(tweet)
 
 
 filenames = sys.argv[1:]
 
 # Open the files and turn them into one long string
-
 # Your task is to write a new function tweet, that will take chains as input
+save_tweets_to_text_file(get_tweets("Courtney"))
 # tweet(filenames)
-get_tweets("realDonaldTrump")
+tweet(filenames)
+
+
