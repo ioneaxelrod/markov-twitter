@@ -118,7 +118,6 @@ filenames = sys.argv[1:]
 
 # Open the files and turn them into one long string
 # Your task is to write a new function tweet, that will take chains as input
-save_tweets_to_text_file(get_tweets("Courtney"))
 # tweet(filenames)
 tweet(filenames)
 
