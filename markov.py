@@ -6,6 +6,11 @@ from random import choice
 import twitter
 
 
+def place_to_end(text_string):
+    words = text_string.split()
+    return (words[-3], words[-2])
+
+
 def open_and_read_file(filenames):
     """Take list of files. Open them, read them, and return one long string."""
 
@@ -30,13 +35,7 @@ def make_chains(text_string):
         key = (words[i], words[i + 1])
         value = words[i + 2]
 
-        if key not in chains:
-            chains[key] = []
-
-        chains[key].append(value)
-
-        # or we could replace the last three lines with:
-        #    chains.setdefault(key, []).append(value)
+        chains.setdefault(key, []).append(value)
 
     return chains
 
@@ -58,17 +57,30 @@ def make_text(chains):
         words.append(word)
         key = (key[1], word)
 
-    return " ".join(words)
+    new_tweet = " ".join(words)
+    if len(new_tweet) < 280:
+        return new_tweet
+
+    return make_text(chains)
 
 
 def tweet(chains):
     """Create a tweet and send it to the Internet."""
 
+    api = twitter.Api(
+        consumer_key=os.environ["TWITTER_CONSUMER_KEY"],
+        consumer_secret=os.environ["TWITTER_CONSUMER_SECRET"],
+        access_token_key=os.environ["TWITTER_ACCESS_TOKEN_KEY"],
+        access_token_secret=os.environ["TWITTER_ACCESS_TOKEN_SECRET"])
+
+    print(api.VerifyCredentials())
+
+    new_tweet = api.PostUpdate(chains)
+    print(status.text)
+
     # Use Python os.environ to get at environmental variables
     # Note: you must run `source secrets.sh` before running this file
     # to make sure these environmental variables are set.
-
-    pass
 
 
 # Get the filenames from the user through a command line prompt, ex:
@@ -79,7 +91,7 @@ filenames = sys.argv[1:]
 text = open_and_read_file(filenames)
 
 # Get a Markov chain
-chains = make_chains(text)
+chains = make_text(make_chains(text))
 
 # Your task is to write a new function tweet, that will take chains as input
-# tweet(chains)
+tweet(chains)
