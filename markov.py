@@ -4,6 +4,8 @@ import os
 import sys
 from random import choice
 import twitter
+import json
+import re
 
 
 def place_to_end(text_string):
@@ -90,9 +92,27 @@ def tweet(filenames):
             continue
 
 
+def get_tweets(search_criteria):
+    api = twitter.Api(
+                consumer_key=os.environ["TWITTER_CONSUMER_KEY"],
+                consumer_secret=os.environ["TWITTER_CONSUMER_SECRET"],
+                access_token_key=os.environ["TWITTER_ACCESS_TOKEN_KEY"],
+                access_token_secret=os.environ["TWITTER_ACCESS_TOKEN_SECRET"],
+                tweet_mode="extended")
+
+    search = api.GetUserTimeline(screen_name=search_criteria, count=10)
+    tweets = [item.AsDict() for item in search]
+    tweets = [re.sub(r'http\S+', '', tweet["full_text"]) for tweet in tweets]
+
+    for tweet in tweets:
+        print(tweet)
+    return tweets
+
+
 filenames = sys.argv[1:]
 
 # Open the files and turn them into one long string
 
 # Your task is to write a new function tweet, that will take chains as input
-tweet(filenames)
+# tweet(filenames)
+get_tweets("realDonaldTrump")
