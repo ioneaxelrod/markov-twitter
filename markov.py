@@ -18,7 +18,7 @@ def open_and_read_file(filenames):
 
     for filename in filenames:
         text_file = open(filename)
-        body = body + text_file.read()
+        body = body + " " + text_file.read() 
         text_file.close()
 
     return body
@@ -64,34 +64,35 @@ def make_text(chains):
     return make_text(chains)
 
 
-def tweet(chains):
+def tweet(filenames):
     """Create a tweet and send it to the Internet."""
 
-    api = twitter.Api(
-        consumer_key=os.environ["TWITTER_CONSUMER_KEY"],
-        consumer_secret=os.environ["TWITTER_CONSUMER_SECRET"],
-        access_token_key=os.environ["TWITTER_ACCESS_TOKEN_KEY"],
-        access_token_secret=os.environ["TWITTER_ACCESS_TOKEN_SECRET"])
+    while True:
+        chains = make_text(make_chains(open_and_read_file(filenames)))
+        print(chains)
+        print()
+        print("Would you like to print this tweet? [y/n/q]")
+        user_input = input("> ").lower()
+        print()
+        if user_input == 'q':
+            break
+        elif user_input == 'y':
+            api = twitter.Api(
+                consumer_key=os.environ["TWITTER_CONSUMER_KEY"],
+                consumer_secret=os.environ["TWITTER_CONSUMER_SECRET"],
+                access_token_key=os.environ["TWITTER_ACCESS_TOKEN_KEY"],
+                access_token_secret=os.environ["TWITTER_ACCESS_TOKEN_SECRET"])
 
-    print(api.VerifyCredentials())
+            print(api.VerifyCredentials())
 
-    new_tweet = api.PostUpdate(chains)
-    print(status.text)
-
-    # Use Python os.environ to get at environmental variables
-    # Note: you must run `source secrets.sh` before running this file
-    # to make sure these environmental variables are set.
+            new_tweet = api.PostUpdate(chains)
+        else:
+            continue
 
 
-# Get the filenames from the user through a command line prompt, ex:
-# python markov.py green-eggs.txt shakespeare.txt
 filenames = sys.argv[1:]
 
 # Open the files and turn them into one long string
-text = open_and_read_file(filenames)
-
-# Get a Markov chain
-chains = make_text(make_chains(text))
 
 # Your task is to write a new function tweet, that will take chains as input
-tweet(chains)
+tweet(filenames)
